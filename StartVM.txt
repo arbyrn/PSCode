@@ -1,0 +1,14 @@
+StartVM - AutoBilling
+workflow StartVM
+{
+    Param (
+        [string]$VMName,
+        [string]$VMServiceName
+    )
+    
+    $Credential = Get-AutomationPSCredential -Name 'AlanAutoBillCred'    
+    Add-AzureAccount -Credential $Credential
+    
+    Start-AzureVM -Name $VMName -ServiceName $VMServiceName
+    
+}

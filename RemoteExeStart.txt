@@ -1,0 +1,36 @@
+RemoteExeStart
+workflow RemoteExeStart
+{
+	$Credential = Get-AutomationPSCredential -Name 'AlanAutoCred'
+    $PSCommand = 'C:\AutoProcesses\VMAutoProcess\VMAutoProcess.exe'
+	$AzureSubscriptionName = 'VSSub1'
+	$ServiceName = 'AlanTest'
+	$VMName = 'AlanTest'
+	
+	
+	Add-AzureAccount -Credential $Credential
+    
+    #Start-AzureVM -Name 'AlanTest' -ServiceName 'AlanAppTest'
+    
+	$VM = Get-AzureVM -ServiceName "AlanTest" -Name "AlanTest"
+    $status = $VM | Select-Object Status, PowerState
+	
+	
+    $Uri = Connect-AzureVM -AzureSubscriptionName $AzureSubscriptionName -AzureOrgIdCredential $Credential -ServiceName $ServiceName -VMName $VMName 
+    
+    $PSCommandResult = InlineScript {        
+        Invoke-command -ConnectionUri $Using:Uri -credential $Using:Credential -ScriptBlock {
+            Invoke-Expression $Args[0] 
+        } -Args $Using:PSCommand
+
+    }
+    
+
+	#$PSCommandResult = Invoke-PSCommandSample -AzureSubscriptionName 'VSSub1' 
+	#-AzureOrgIdCredential $Using:$Credential -ServiceName 'AlanTest' -VMName 'AlanTest' 
+	#-VMCredentialName 'AlanTestCred' -PSCommand 'Invoke-Expression "C:\AutoProcesses\VMAutoProcess\VMAutoProcess.exe"'
+
+
+
+	$PSCommandResult
+}
